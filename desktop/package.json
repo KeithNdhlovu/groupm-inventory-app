@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "productName": "Inventory",
   "description": "Inventory management system",
-  "repository": "https://github.com/KeithNdhlovu/inventory-desktop-releases",
+  "repository": "https://github.com/KeithNdhlovu/groupm-inventory-app",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -30,13 +30,13 @@
     "publish": [
       {
         "provider": "github",
-        "repo": "inventory-desktop-releases"
+        "repo": "groupm-inventory-app"
       }
     ]
   },
   "author": {
-    "name": "Inventory",
-    "email": "Tiisetso.jika@groupm.com"
+    "name": "Jakub Blasczykowski",
+    "email": "kevin@unitx.co.za"
   },
   "license": "ISC"
 }
