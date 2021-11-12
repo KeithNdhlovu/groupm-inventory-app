@@ -1,3 +1,4 @@
+import Swal from "sweetalert2"
 import { supabase } from "../supabaseClient"
 
 
@@ -7,11 +8,56 @@ class SupabaseAPI {
         this.client = supabase
     }
 
-    list = async (tableName) => {
+    createProfile = async (payload) => {
+        const response = await this.client.auth.signUp(payload)
+        return this.errorOrData({
+            error: response.error,
+            data: response.user
+        })
+    }
+    
+    login = async (payload) => {
+        const response = await this.client.auth.signIn(payload)
+        return this.errorOrData({
+            error: response.error,
+            data: response.user
+        })
+    }
+    
+    logout = async (payload) => {
+        const response = await this.client.auth.signOut(payload)
+        return this.errorOrData({
+            error: response.error,
+            data: {}
+        })
+    }
+
+    // Get a related record when specified
+    // related = {table: String, foreign: String}
+    /**
+     * 
+     * @param {String} tableName 
+     * @param {table: String, foreign: String} related 
+     * @returns 
+     */
+    list = async (tableName, related = null) => {
         
-        const response = await this.client
+        const query = this.client
             .from(tableName)
             .select("*")
+
+        if (!related) {
+            query.select("*")
+        } else {
+            query.select(`
+                *,
+                ${related.table} (
+                    ${related.fields}
+                )
+            `)
+        }
+
+        const response = await query
 
         return this.errorOrData(response)
     }
@@ -61,6 +107,11 @@ class SupabaseAPI {
         const { data, error, status } = response
 
         if (error) {
+            Swal.fire({
+                title: 'Error Occurred!',
+                text: error,
+                icon: 'error',
+            })
             throw error
         }
 
@@ -92,8 +143,8 @@ class ProductService extends SupabaseAPI {
         return this.update(this.tableName, productId, payload)
     }
     
-    createProduct(productId, payload) {
-        return this.create(this.tableName, productId, payload)
+    createProduct(payload) {
+        return this.create(this.tableName, payload)
     }
 }
 
@@ -105,7 +156,7 @@ class OrderService extends SupabaseAPI {
     }
 
     listOrders() {
-        return this.list(this.tableName)
+        return this.list(this.tableName, {table: "Products", fields: "*"})
     }
     
     getOrder(orderId) {
@@ -120,15 +171,17 @@ class OrderService extends SupabaseAPI {
         return this.update(this.tableName, orderId, payload)
     }
     
-    createOrder(orderId, payload) {
-        return this.create(this.tableName, orderId, payload)
+    createOrder(payload) {
+        return this.create(this.tableName, payload)
     }
 }
 
+const apiService = new SupabaseAPI()
 const orderService = new OrderService()
 const productService = new ProductService()
 
 export {
+    apiService,
     orderService,
     productService,
 }

@@ -4,7 +4,7 @@ import { map, size } from "lodash"
 import { supabase } from '../supabaseClient'
 import Swal from 'sweetalert2'
 import Loader from '../partials/Loader'
-import { productService } from '../api'
+import { orderService, productService } from '../api'
 
 const TableData = (props) => {
 
@@ -14,11 +14,15 @@ const TableData = (props) => {
         title,
         header,
         loading,
+        colCount
     } = props
 
 
     return (
         <div className="row">
+            <div className="col s8">
+                <h5 className="breadcrumbs-title page-title">{title}</h5>
+            </div>
             <div className="col s12">
                 <div className="overflow-scroll">
 
@@ -34,7 +38,7 @@ const TableData = (props) => {
                         {(size(data) === 0 && !loading) && (
                             <tbody>
                                 <tr>
-                                    <td colSpan="6" className="center">
+                                    <td colSpan={colCount} className="center">
                                         <h5>No data available yet</h5>
                                     </td>
                                 </tr>
@@ -45,7 +49,7 @@ const TableData = (props) => {
                         {(loading) && (
                             <tbody>
                                 <tr>
-                                    <td colSpan="6" className="center">
+                                    <td colSpan={colCount} className="center">
                                         <Loader />
                                     </td>
                                 </tr>
@@ -69,9 +73,17 @@ function Home() {
         setLoading(true)
 
         let products = await productService.listProducts()
+        let orders = await orderService.listOrders()
+        const ordersTransformed = map(orders, o => {
+            return {
+                ...o,
+                price: o.quantity * o.Products.price,
+            }
+        })
 
         setLoading(false)
         setProducts(products)
+        setOrders(ordersTransformed)
     }
 
     useEffect(() => {
@@ -119,6 +131,37 @@ function Home() {
             console.log({ data, error })
         })
     }
+ 
+    /**
+     * Delete the currently selected order
+     * 
+     * @param {*} order 
+     */
+    const _handleDeleteOrder = (order) => {
+
+        Swal.fire({
+            title: 'Warning!',
+            text: `Are you sure you want to delete Order from: ${order.first_name} ${order.last_name}?`,
+            icon: 'warning',
+            confirmButtonText: 'Continue',
+            showCancelButton: true,
+            cancelButtonText: "Cancel"
+        }).then(response => {
+
+            const { isConfirmed } = response
+
+            if (isConfirmed) {
+                setLoading(true)
+                return orderService.remove(order.id)
+            }
+
+            return Promise.resolve({ data: {}, error: undefined })
+        }).then(response => {
+            const { data, error } = response
+
+            console.log({ data, error })
+        })
+    }
 
     return (
         <div>
@@ -139,7 +182,7 @@ function Home() {
             </div>
             <div className="container">
                 <TableData
-                    title=""
+                    title="Products"
                     header={
                         <tr>
                             <th>#</th>
@@ -150,6 +193,7 @@ function Home() {
                             <th className="center-align">Actions</th>
                         </tr>
                     }
+                    colCount={6}
                     body={
                         <tbody>
                             {map(products, product => (
@@ -173,7 +217,51 @@ function Home() {
                             ))}
                         </tbody>
                     }
+                    loading={loading}
                     data={products} />
+            </div>
+            <br />
+            <br />
+            <div className="container">
+                <TableData
+                    title="Orders"
+                    header={
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Product Name</th>
+                            <th>Quantity</th>
+                            <th>Amount</th>
+                            <th className="center-align">Actions</th>
+                        </tr>
+                    }
+                    colCount={8}
+                    body={
+                        <tbody>
+                            {map(orders, order => (
+                                <tr key={order.id}>
+                                    <td>{order.id}</td>
+                                    <td>{order.title}</td>
+                                    <td>{order.first_name}</td>
+                                    <td>{order.last_name}</td>
+                                    <td>{order.Products.name}</td>
+                                    <td>{order.quantity}</td>
+                                    <td>{Dinero({ amount: order.price }).toFormat()}</td>
+                                    <td>
+                                        <div className="center-align">
+                                            <a onClick={() => _handleDeleteOrder(order)} className="btn-floating red">
+                                                <i className="material-icons sustain-red">delete</i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    }
+                    loading={loading}
+                    data={orders} />
             </div>
         </div>
     )

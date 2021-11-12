@@ -15,11 +15,11 @@ const Authenticated = () => {
             <section id="content">
                 <Router>
                     <Switch>
-                        <Route exact path='/' render= {(props)=>{ return <Home {...props}/>}}/>
-                        <Route exact path="/shop" component= {(props)=>{ return <CreateOrder {...props}/>}} />
-                        <Route exact path="/add/order" component= {(props)=>{ return <CreateOrder {...props}/>}} />
-                        <Route exact path="/products/:id" component= {(props)=>{ return <Product {...props}/>}} />
-                        <Route exact path="/create/products" component= {(props)=>{ return <Product isNew={true} {...props}/>}} />
+                        <Route exact path='/' render={(props)=>{ return <Home {...props}/>}}/>
+                        <Route exact path="/shop" component={(props)=>{ return <CreateOrder {...props}/>}} />
+                        <Route exact path="/add/order" component={(props)=>{ return <CreateOrder isNew={true} {...props}/>}} />
+                        <Route exact path="/products/:id" component={(props)=>{ return <Product {...props}/>}} />
+                        <Route exact path="/create/products" component={(props)=>{ return <Product isNew={true} {...props}/>}} />
                     </Switch>
                 </Router>
             </section>

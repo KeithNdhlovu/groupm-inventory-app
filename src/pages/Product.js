@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient'
 import Swal from 'sweetalert2'
 import Loader from '../partials/Loader'
 import { isEmpty } from 'lodash'
+import { productService } from '../api'
 
 const Form = (props) => {
     
@@ -12,6 +13,12 @@ const Form = (props) => {
         product,
         loading,
     } = props
+
+    const [state, setState] = useState(product)
+
+    useEffect(() => {
+        setState(product)
+    }, [product])
 
     return (
         <div className="row">
@@ -28,13 +35,19 @@ const Form = (props) => {
                 </div>
                 <div className="row">
                     <div className="input-field col s12">
-                        <input onChange={onChange} placeholder=" " defaultValue={product.inventory_on_hand} name="inventory_on_hand" id="inventory_on_hand" type="text" />
+                        <input 
+                            onChange={onChange} 
+                            placeholder=" " 
+                            defaultValue={product.inventory_on_hand} 
+                            name="inventory_on_hand" 
+                            id="inventory_on_hand" 
+                            type="text" />
                         <label htmlFor="inventory_on_hand">How Many In Stock</label>
                     </div>
                 </div>
                 <div className="row">
                     <div className="input-field col s12">
-                        <textarea onChange={onChange} placeholder=" " defaultValue={product.description} name="description" id="textarea1" class="materialize-textarea"></textarea>
+                        <textarea onChange={onChange} placeholder=" " defaultValue={product.description} name="description" id="textarea1" className="materialize-textarea"></textarea>
                         <label for="textarea1">Description</label>
                     </div>
                 </div>
@@ -73,20 +86,12 @@ const ShowProductDetail = (props) => {
     const fetchData = async () => {
         setLoading(true)
 
-        let { data: product, error, status } = await supabase
-            .from('Products')
-            .select('*')
-            .single()
-            .eq('id', props.match.params.id)
+        let data = await productService.getProduct(props.match.params.id)
 
         setLoading(false)
 
-        if (error && status !== 406) {
-            throw error
-        }
-
-        if (product) {
-            setProduct(product)
+        if (data) {
+            setProduct(data)
         }
     }
 
@@ -120,7 +125,7 @@ const ShowProductDetail = (props) => {
                 <div className="row">
                     <div className="col s12">
                         <div className="card-panel z-depth-2">
-                            {!loading && (
+                            {!loading &&  (
                                 <Form 
                                     product={product} 
                                     onConfirm={handlePostUpdate}

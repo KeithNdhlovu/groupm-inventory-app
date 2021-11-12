@@ -52,8 +52,12 @@ html, body, #root, main {
 }
 
 .login-form {
-  width: 450px;
+  width: 300px;
   height: auto;
+}
+
+.login-form .no-margin {
+  margin: 0 !important;
 }
 
 .logo-image {
