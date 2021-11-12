@@ -1,0 +1,42 @@
+{
+  "name": "inventory-desktop",
+  "version": "1.0.1",
+  "productName": "Inventory",
+  "description": "Inventory management system",
+  "repository": "https://github.com/KeithNdhlovu/inventory-desktop-releases",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "publish": "electron-builder -w",
+    "publish:mac": "electron-builder -m",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "electron": "~11.0.0",
+    "electron-builder": "~22.9.1"
+  },
+  "build": {
+    "appId": "za.co.groupm.inventory",
+    "productName": "GroupM inventory",
+    "directories": {
+      "buildResources": "assets/icons"
+    },
+    "win": {
+      "publisherName": "Inventory (Pty) Ltd",
+      "icon": "assets/icons/icon.png"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "repo": "inventory-desktop-releases"
+      }
+    ]
+  },
+  "author": {
+    "name": "Inventory",
+    "email": "Tiisetso.jika@groupm.com"
+  },
+  "license": "ISC"
+}
